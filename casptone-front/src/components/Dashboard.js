@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header";
+import AppLayout from "./Header";
 import AdminDashboard from "./Admin/AdminDashboard";
 import CustomerDashboard from "./Customers/CustomerDashboard";
 
@@ -27,20 +27,15 @@ const Dashboard = () => {
     }, [navigate]);
 
     return (
-        <div className="dashboard-container">
-            <Header cartCount={user.role === "customer" ? cartCount : null} />
-
-            <main>
-
-                {user.role === "employee" ? (
-                    <AdminDashboard />
-                ) : user.role === "customer" ? (
-                    <CustomerDashboard />
-                ) : (
-                    <p>Loading content...</p>
-                )}
-            </main>
-        </div>
+        <AppLayout>
+            {user.role === "employee" ? (
+                <AdminDashboard />
+            ) : user.role === "customer" ? (
+                <CustomerDashboard />
+            ) : (
+                <p>Loading content...</p>
+            )}
+        </AppLayout>
     );
 };
 
