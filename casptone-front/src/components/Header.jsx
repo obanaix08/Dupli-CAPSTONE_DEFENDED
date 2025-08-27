@@ -65,6 +65,7 @@ const Header = ({ role, username }) => {
                     </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
+                <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>Theme</button>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
             </div>
         </header>
@@ -110,6 +111,11 @@ const Sidebar = () => {
                         <BarChart size={20} /> Reports
                     </button>
                 </nav>
+                <div className="mt-3">
+                    <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                        Toggle Theme
+                    </button>
+                </div>
             </div>
 
             <button style={styles.logoutModern} onClick={handleLogout}>
@@ -227,6 +233,15 @@ const styles = {
         padding: "6px 12px",
         cursor: "pointer",
         boxShadow: "0 8px 16px rgba(139,94,52,0.25)",
+    },
+    themeBtn: {
+        background: "linear-gradient(180deg, #d9c7ae, #cbb79a)",
+        color: "#2f2a26",
+        border: "none",
+        borderRadius: "8px",
+        padding: "6px 12px",
+        cursor: "pointer",
+        boxShadow: "0 6px 12px rgba(0,0,0,0.08)",
     },
 
     
