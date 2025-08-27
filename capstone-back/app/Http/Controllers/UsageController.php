@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InventoryUsage;
 use App\Models\InventoryItem;
 use Illuminate\Http\Request;
+use App\Notifications\LowStockAlert;
+use App\Models\User;
 
 class UsageController extends Controller
 {
@@ -26,6 +28,16 @@ class UsageController extends Controller
         // Update inventory balance
         $item = InventoryItem::find($data['inventory_item_id']);
         $item->decrement('quantity_on_hand', $data['qty_used']);
+
+        // Notify employees if below reorder point
+        $item->refresh();
+        $rop = $item->reorder_point ?? 0;
+        if ($rop > 0 && $item->quantity_on_hand <= $rop) {
+            // Notify all employees
+            User::where('role', 'employee')->get()->each(function ($u) use ($item) {
+                $u->notify(new LowStockAlert($item));
+            });
+        }
 
         // Broadcast update
         broadcast(new \App\Events\InventoryUpdated($item))->toOthers();

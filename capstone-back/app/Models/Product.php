@@ -26,4 +26,9 @@ class Product extends Model
     {
         return $this->hasMany(Production::class);
     }
+
+    public function materials()
+    {
+        return $this->hasMany(ProductMaterial::class);
+    }
 }

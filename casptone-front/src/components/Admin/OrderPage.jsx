@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import OrdersTable from "./OrdersTable";
 import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
+import AppLayout from "../Header";
 
 const OrdersPage = () => {
   const navigate = useNavigate();
 
   return (
+    <AppLayout>
     <div className="container py-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         {/* Back Button */}
@@ -32,6 +34,7 @@ const OrdersPage = () => {
         </div>
       </motion.div>
     </div>
+    </AppLayout>
   );
 };
 

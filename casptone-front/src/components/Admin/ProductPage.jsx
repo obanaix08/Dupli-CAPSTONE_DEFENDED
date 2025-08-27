@@ -5,6 +5,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { Modal, Button, Form } from "react-bootstrap"; // ✅ Import
 import "bootstrap/dist/css/bootstrap.min.css";
+import AppLayout from "../Header";
 
 const ProductPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -43,6 +44,7 @@ const ProductPage = () => {
   };
 
   return (
+    <AppLayout>
     <div className="container py-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         {/* Back Button */}
@@ -105,6 +107,7 @@ const ProductPage = () => {
         </Modal>
       </motion.div>
     </div>
+    </AppLayout>
   );
 };
 

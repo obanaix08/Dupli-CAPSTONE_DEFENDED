@@ -19,11 +19,17 @@ const AdminProductsTable = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [deleteError, setDeleteError] = useState("");
 
+  const [showBomModal, setShowBomModal] = useState(false);
+  const [bom, setBom] = useState([]); // [{inventory_item_id, sku, name, qty_per_unit}]
+  const [materials, setMaterials] = useState([]); // inventory list for picker
+
+  const token = localStorage.getItem("token");
+  const headers = { Authorization: `Bearer ${token}` };
+
   const fetchProducts = async () => {
-    const token = localStorage.getItem("token");
     try {
       const response = await axios.get("http://localhost:8000/api/products", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
       setProducts(response.data);
       setLoading(false);
@@ -40,6 +46,61 @@ const AdminProductsTable = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  const openBomModal = async (product) => {
+    setSelectedProduct(product);
+    try {
+      const [invRes, bomRes] = await Promise.all([
+        axios.get("http://localhost:8000/api/inventory", { headers }),
+        axios.get(`http://localhost:8000/api/products/${product.id}/materials`, { headers }),
+      ]);
+      setMaterials(invRes.data || []);
+      setBom(bomRes.data || []);
+      setShowBomModal(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const addBomRow = () => setBom((prev) => [...prev, { inventory_item_id: "", qty_per_unit: 1 }]);
+  const removeBomRow = (idx) => setBom((prev) => prev.filter((_, i) => i !== idx));
+  const updateBomRow = (idx, field, value) => setBom((prev) => prev.map((r, i) => (i === idx ? { ...r, [field]: value } : r)));
+
+  const saveBom = async () => {
+    try {
+      await axios.post(`http://localhost:8000/api/products/${selectedProduct.id}/materials`, { items: bom }, { headers });
+      setShowBomModal(false);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save BOM");
+    }
+  };
+
+  const exportBom = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/products/${selectedProduct.id}/materials/export`, { headers, responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `product_${selectedProduct.id}_materials.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const importBom = async (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      await axios.post(`http://localhost:8000/api/products/${selectedProduct.id}/materials/import`, form, { headers });
+      await openBomModal(selectedProduct);
+    } catch (e) {
+      console.error(e);
+      alert('Import failed');
+    }
+  };
+
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setFormData(product);
@@ -53,10 +114,9 @@ const AdminProductsTable = () => {
   };
 
   const confirmDelete = async () => {
-    const token = localStorage.getItem("token");
     try {
       await axios.delete(`http://localhost:8000/api/products/${deleteId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
       setProducts(products.filter((product) => product.id !== deleteId));
       setShowDeleteModal(false);
@@ -74,23 +134,14 @@ const AdminProductsTable = () => {
   };
 
   const handleSave = async () => {
-    const token = localStorage.getItem("token");
     try {
       await axios.put(
         `http://localhost:8000/api/products/${selectedProduct.id}`,
         formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setProducts(
-        products.map((product) =>
-          product.id === selectedProduct.id
-            ? { ...product, ...formData }
-            : product
-        )
+        { headers }
       );
       setShowEditModal(false);
+      fetchProducts();
     } catch (error) {
       console.error("Error updating product:", error);
     }
@@ -107,7 +158,7 @@ const AdminProductsTable = () => {
               <div className="card h-100 shadow-sm border-0">
                 {product.image ? (
                 <img
-                  src={`http://localhost:8000/${product.image}`} // prepend base URL
+                  src={`http://localhost:8000/${product.image}`}
                   alt={product.name}
                   className="card-img-top"
                   style={{ height: "200px", objectFit: "cover" }}
@@ -130,7 +181,13 @@ const AdminProductsTable = () => {
                   <p className="text-secondary small">
                     Stock: {product.stock}
                   </p>
-                  <div className="mt-auto d-flex justify-content-between">
+                  <div className="mt-auto d-flex justify-content-between gap-2">
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => openBomModal(product)}
+                    >
+                      Manage BOM
+                    </button>
                     <button
                       className="btn btn-warning btn-sm"
                       onClick={() => handleEdit(product)}
@@ -177,8 +234,7 @@ const AdminProductsTable = () => {
                   onChange={handleInputChange}
                   placeholder="Name"
                 />
-                <input
-                  type="text"
+                <textarea
                   className="form-control mb-2"
                   name="description"
                   value={formData.description}
@@ -252,6 +308,68 @@ const AdminProductsTable = () => {
                 <button className="btn btn-danger" onClick={confirmDelete}>
                   Delete
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOM Modal */}
+      {showBomModal && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Manage Bill of Materials — {selectedProduct?.name}</h5>
+                <button type="button" className="btn-close" onClick={() => setShowBomModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <table className="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Material</th>
+                      <th style={{ width: 140 }} className="text-end">Qty per Unit</th>
+                      <th style={{ width: 80 }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bom.map((row, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <select
+                            className="form-select form-select-sm"
+                            value={row.inventory_item_id}
+                            onChange={(e) => updateBomRow(idx, 'inventory_item_id', Number(e.target.value))}
+                          >
+                            <option value="">Select material</option>
+                            {materials.map((m) => (
+                              <option key={m.id} value={m.id}>{m.sku} — {m.name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="text-end">
+                          <input type="number" className="form-control form-control-sm text-end" min="1" value={row.qty_per_unit}
+                            onChange={(e) => updateBomRow(idx, 'qty_per_unit', Number(e.target.value))} />
+                        </td>
+                        <td>
+                          <button className="btn btn-outline-danger btn-sm" onClick={() => removeBomRow(idx)}>Remove</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-outline-secondary btn-sm" onClick={addBomRow}>+ Add Material</button>
+                  <button className="btn btn-outline-primary btn-sm" onClick={exportBom}>Export CSV</button>
+                  <label className="btn btn-outline-success btn-sm mb-0">
+                    Import CSV
+                    <input type="file" accept=".csv" hidden onChange={(e) => e.target.files?.[0] && importBom(e.target.files[0])} />
+                  </label>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowBomModal(false)}>Close</button>
+                <button className="btn btn-primary" onClick={saveBom}>Save</button>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AppLayout from "../Header";
 
 /**
  * Enhanced Inventory Management Page with Material CRUD Operations
@@ -668,7 +669,7 @@ const InventoryPage = () => {
   };
 
   return (
-
+    <AppLayout>
     <div className="container-fluid py-4">
       {/* Back Button */}
       <button className="btn btn-outline-secondary mb-3" onClick={() => navigate("/dashboard")}>
@@ -916,6 +917,7 @@ const InventoryPage = () => {
       
     </div>
      </div>
+    </AppLayout>
   );
 };
 

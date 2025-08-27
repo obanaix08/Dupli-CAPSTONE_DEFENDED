@@ -25,6 +25,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
+    Route::get('/products/{id}/materials', [ProductController::class, 'getMaterials']);
+    Route::post('/products/{id}/materials', [ProductController::class, 'setMaterials']);
+    Route::get('/products/{id}/materials/export', [ProductController::class, 'exportMaterialsCsv']);
+    Route::post('/products/{id}/materials/import', [ProductController::class, 'importMaterialsCsv']);
 
     // Cart Routes
     Route::post('/cart', [CartController::class, 'addToCart']);  // 
@@ -36,6 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/checkout', [OrderController::class, 'checkout']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/orders/{id}/tracking', [OrderController::class, 'tracking']);
     Route::middleware('auth:sanctum')->get('/orders/{id}', [OrderController::class, 'show']);
     Route::middleware(['auth:sanctum'])->put('/orders/{id}/complete', [OrderController::class, 'markAsComplete']);
 

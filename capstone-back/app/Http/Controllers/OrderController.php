@@ -8,6 +8,11 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Production;
+use Illuminate\Support\Facades\DB;
+use App\Models\Product;
+use App\Models\ProductMaterial;
+use App\Models\InventoryItem;
+use App\Models\InventoryUsage;
 
 class OrderController extends Controller
 {
@@ -32,43 +37,94 @@ class OrderController extends Controller
             $totalPrice += $item->product->price * $item->quantity;
         }
 
-        // Create order with checkout_date
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total_price' => $totalPrice,
-            'status' => 'pending',
-            'checkout_date' => now() // Set checkout date
-        ]);
-
-        // Add order items, update stock, and create production jobs
+        // Pre-check: ensure raw materials are sufficient based on BOM
+        $shortages = [];
         foreach ($cartItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->product->price
-            ]);
-
-            // Reduce stock
-            $item->product->stock -= $item->quantity;
-            $item->product->save();
-
-            // Auto-create Production record for this item
-            Production::create([
-                'product_name' => $item->product->name,
-                'date' => now()->toDateString(),
-                'stage' => 'Preparation',
-                'status' => 'Pending',
-                'quantity' => $item->quantity,
-                'resources_used' => null,
-                'notes' => 'Generated from Order #' . $order->id
-            ]);
+            $bom = ProductMaterial::where('product_id', $item->product_id)->get();
+            foreach ($bom as $mat) {
+                $requiredQty = $mat->qty_per_unit * $item->quantity;
+                $inv = InventoryItem::find($mat->inventory_item_id);
+                if ($inv && ($inv->quantity_on_hand < $requiredQty)) {
+                    $shortages[] = [
+                        'product_id' => $item->product_id,
+                        'product_name' => $item->product->name,
+                        'sku' => $inv->sku,
+                        'material_name' => $inv->name,
+                        'on_hand' => $inv->quantity_on_hand,
+                        'required' => $requiredQty,
+                        'deficit' => max(0, $requiredQty - $inv->quantity_on_hand),
+                    ];
+                }
+            }
+        }
+        if (!empty($shortages)) {
+            return response()->json([
+                'message' => 'Insufficient raw materials for this order',
+                'shortages' => $shortages
+            ], 422);
         }
 
-        // Clear cart
-        Cart::where('user_id', $user->id)->delete();
+        return DB::transaction(function () use ($user, $cartItems, $totalPrice) {
+            // Create order with checkout_date
+            $order = Order::create([
+                'user_id' => $user->id,
+                'total_price' => $totalPrice,
+                'status' => 'pending',
+                'checkout_date' => now()
+            ]);
 
-        return response()->json(['message' => 'Checkout successful', 'order_id' => $order->id]);
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->price
+                ]);
+
+                // Reduce finished product stock (if applicable)
+                $item->product->decrement('stock', $item->quantity);
+
+                // Deduct raw materials per BOM
+                $bom = ProductMaterial::where('product_id', $item->product_id)->get();
+                foreach ($bom as $mat) {
+                    $requiredQty = $mat->qty_per_unit * $item->quantity;
+                    $inv = InventoryItem::find($mat->inventory_item_id);
+                    if ($inv) {
+                        $inv->decrement('quantity_on_hand', $requiredQty);
+                        // record usage row
+                        InventoryUsage::create([
+                            'inventory_item_id' => $inv->id,
+                            'date' => now()->toDateString(),
+                            'qty_used' => $requiredQty,
+                        ]);
+                    }
+                }
+
+                // Auto-create Production record for this item
+                Production::create([
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'date' => now()->toDateString(),
+                    'stage' => 'Preparation',
+                    'status' => 'Pending',
+                    'quantity' => $item->quantity,
+                    'resources_used' => $bom->map(function ($m) use ($item) {
+                        return [
+                            'inventory_item_id' => $m->inventory_item_id,
+                            'qty' => $m->qty_per_unit * $item->quantity,
+                        ];
+                    })->values(),
+                    'notes' => 'Generated from Order #' . $order->id
+                ]);
+            }
+
+            // Clear cart
+            Cart::where('user_id', $user->id)->delete();
+
+            return response()->json(['message' => 'Checkout successful', 'order_id' => $order->id]);
+        });
     }
 
 
@@ -90,6 +146,59 @@ class OrderController extends Controller
         }
 
         return response()->json(Order::where('user_id', $user->id)->with('items.product')->get());
+    }
+
+    public function tracking($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $order = Order::with('items.product')->where('id', $id)->where('user_id', $user->id)->first();
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        $stages = ['Design','Preparation','Cutting','Assembly','Finishing','Quality Control'];
+        $productions = Production::where('order_id', $order->id)->get();
+
+        $stageSummary = collect($stages)->map(function ($s) use ($productions) {
+            $items = $productions->where('stage', $s);
+            return [
+                'stage' => $s,
+                'in_progress' => $items->where('status','In Progress')->count(),
+                'completed' => $items->where('status','Completed')->count(),
+                'pending' => $items->where('status','Pending')->count(),
+            ];
+        })->values();
+
+        // Simple ETA: assume each stage takes 2 days per item
+        $perStageDays = 2;
+        $totalJobs = max(1, $productions->count());
+        $completedJobs = $productions->where('status','Completed')->count();
+        $inProgressJobs = $productions->where('status','In Progress')->count();
+        $progressRatio = ($completedJobs + 0.5 * $inProgressJobs) / $totalJobs;
+        $progressPct = round($progressRatio * 100);
+        $estimatedTotalDays = count($stages) * $perStageDays; // coarse
+        $remainingDays = max(0, round($estimatedTotalDays * (1 - $progressRatio)));
+        $etaDate = now()->addDays($remainingDays)->toDateString();
+
+        $overall = [
+            'total' => $productions->count(),
+            'completed' => $completedJobs,
+            'pending' => $productions->where('status','Pending')->count(),
+            'in_progress' => $inProgressJobs,
+            'progress_pct' => $progressPct,
+            'eta' => $etaDate,
+        ];
+
+        return response()->json([
+            'order' => $order,
+            'stage_summary' => $stageSummary,
+            'productions' => $productions,
+            'overall' => $overall,
+        ]);
     }
 
     public function show($id)
