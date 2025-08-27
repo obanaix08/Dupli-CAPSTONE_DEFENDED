@@ -39,6 +39,18 @@ function ThemeWrapper(){
     return () => document.removeEventListener('click', onClick);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key?.toLowerCase() === 't' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        const next = (localStorage.getItem('theme') || 'wood') === 'wood' ? 'standard' : 'wood';
+        window.setTheme && window.setTheme(next);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const wrapperClass = useMemo(() => (theme === 'wood' ? 'wood-app' : ''), [theme]);
 
   return (

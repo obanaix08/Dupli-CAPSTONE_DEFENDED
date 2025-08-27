@@ -65,7 +65,7 @@ const Header = ({ role, username }) => {
                     </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
-                <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                <button className="icon-wood" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
                     {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
                 </button>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
@@ -114,7 +114,7 @@ const Sidebar = () => {
                     </button>
                 </nav>
                 <div className="mt-3">
-                    <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                    <button className="icon-wood" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
                         {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
                     </button>
                 </div>
