@@ -65,8 +65,9 @@ const Header = ({ role, username }) => {
                     </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
-                <button className="icon-wood" aria-label="Toggle theme" title="Toggle theme" aria-pressed={localStorage.getItem('theme')==='wood'} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                <button className="icon-wood" role="switch" aria-checked={localStorage.getItem('theme')==='wood'} aria-label="Toggle theme" title="Toggle theme" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
                     {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
+                    <span className="visually-hidden">Current theme: {localStorage.getItem('theme') || 'wood'}</span>
                 </button>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
             </div>
@@ -114,8 +115,9 @@ const Sidebar = () => {
                     </button>
                 </nav>
                 <div className="mt-3">
-                    <button className="icon-wood" aria-label="Toggle theme" title="Toggle theme" aria-pressed={localStorage.getItem('theme')==='wood'} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                    <button className="icon-wood" role="switch" aria-checked={localStorage.getItem('theme')==='wood'} aria-label="Toggle theme" title="Toggle theme" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
                         {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
+                        <span className="visually-hidden">Current theme: {localStorage.getItem('theme') || 'wood'}</span>
                     </button>
                 </div>
             </div>
