@@ -71,13 +71,13 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <div className="text-center mb-4">
+    <div className="container mt-4 wood-animated">
+      <div className="text-center mb-4 wood-card p-3 wood-header">
         <h2 style={{ color: "black" }}>UNICK FURNITURE DASHBOARD</h2>
       </div>
 
       {/* 🔹 Filters */}
-      <div className="row mb-4">
+      <div className="row mb-4 wood-card p-3">
         <div className="col-md-3">
           <label>Start Date</label>
           <input

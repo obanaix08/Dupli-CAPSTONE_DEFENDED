@@ -36,7 +36,7 @@ const Report = () => {
 
     return (
         <AppLayout>
-            <div className="container mt-4">
+            <div className="container mt-4 wood-animated">
                 <h2 className="fw-bold">Inventory Replenishment Report</h2>
                 <div className="d-flex gap-2 mb-3">
                     <button className="btn btn-outline-secondary" onClick={downloadStockCsv}>Download Stock CSV</button>
@@ -53,7 +53,7 @@ const Report = () => {
                 ) : error ? (
                     <p style={{ color: "red" }}>{error}</p>
                 ) : (
-                    <div className="card shadow-sm">
+                    <div className="card shadow-sm wood-card">
                         <div className="table-responsive">
                             <table className="table table-hover mb-0">
                                 <thead className="table-light">

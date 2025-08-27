@@ -42,14 +42,14 @@ const CustomerDashboard = () => {
     );
 
     return (
-      <div className="container customer-dashboard mt-4">
+      <div className="container customer-dashboard mt-4 wood-animated">
 
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <div className="text-center mb-4">
+                    <div className="text-center mb-4 wood-card p-3">
                     <h2 style={{ color: 'black' }} >UNICK FURNITURE</h2>
                     </div>
 
@@ -74,7 +74,7 @@ const CustomerDashboard = () => {
                     />
                 </div>
 
-                <div className="card p-4 shadow-lg">
+                <div className="card p-4 shadow-lg wood-card">
                     {loading ? (
                         <div className="d-flex justify-content-center align-items-center">
                             <Spinner animation="border" variant="primary" />

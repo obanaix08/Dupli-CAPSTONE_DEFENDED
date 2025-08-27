@@ -9,14 +9,13 @@ export default function KPICards({ kpis }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="row wood-animated">
       {items.map((item, i) => (
-        <div
-          key={i}
-          className="p-4 bg-white rounded shadow text-center border"
-        >
-          <p className="text-gray-600 text-sm">{item.label}</p>
-          <p className="text-2xl font-bold">{item.value}</p>
+        <div className="col-md-3 mb-3" key={i}>
+          <div className="p-4 wood-card text-center">
+            <p className="text-muted" style={{ fontSize: 12 }}>{item.label}</p>
+            <p className="fs-3 fw-bold">{item.value}</p>
+          </div>
         </div>
       ))}
     </div>

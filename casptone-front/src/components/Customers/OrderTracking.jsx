@@ -27,14 +27,14 @@ const OrderTracking = ({ orderId }) => {
     if (orderId) run();
   }, [orderId]);
 
-  if (!orderId) return <div className="alert alert-warning">No order selected.</div>;
+  if (!orderId) return <div className="alert alert-warning wood-card p-2">No order selected.</div>;
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-danger">{error}</div>;
 
   const { order, stage_summary = [], overall = {} } = data || {};
 
   return (
-    <div className="card p-3">
+    <div className="card p-3 wood-card wood-animated">
       <h5>Order #{order?.id} Tracking</h5>
       <div className="mb-2 text-muted">ETA: {overall.eta} • Progress: {overall.progress_pct}%</div>
       <div className="table-responsive">
