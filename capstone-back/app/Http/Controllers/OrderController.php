@@ -9,6 +9,10 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Production;
 use Illuminate\Support\Facades\DB;
+use App\Models\Product;
+use App\Models\ProductMaterial;
+use App\Models\InventoryItem;
+use App\Models\InventoryUsage;
 
 class OrderController extends Controller
 {
@@ -33,46 +37,67 @@ class OrderController extends Controller
             $totalPrice += $item->product->price * $item->quantity;
         }
 
-        // Create order with checkout_date
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total_price' => $totalPrice,
-            'status' => 'pending',
-            'checkout_date' => now() // Set checkout date
-        ]);
-
-        // Add order items, update stock, and create production jobs
-        foreach ($cartItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->product->price
-            ]);
-
-            // Reduce stock
-            $item->product->stock -= $item->quantity;
-            $item->product->save();
-
-            // Auto-create Production record for this item
-            Production::create([
-                'order_id' => $order->id,
+        return DB::transaction(function () use ($user, $cartItems, $totalPrice) {
+            // Create order with checkout_date
+            $order = Order::create([
                 'user_id' => $user->id,
-                'product_id' => $item->product_id,
-                'product_name' => $item->product->name,
-                'date' => now()->toDateString(),
-                'stage' => 'Preparation',
-                'status' => 'Pending',
-                'quantity' => $item->quantity,
-                'resources_used' => null,
-                'notes' => 'Generated from Order #' . $order->id
+                'total_price' => $totalPrice,
+                'status' => 'pending',
+                'checkout_date' => now()
             ]);
-        }
 
-        // Clear cart
-        Cart::where('user_id', $user->id)->delete();
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->price
+                ]);
 
-        return response()->json(['message' => 'Checkout successful', 'order_id' => $order->id]);
+                // Reduce finished product stock (if applicable)
+                $item->product->decrement('stock', $item->quantity);
+
+                // Deduct raw materials per BOM
+                $bom = ProductMaterial::where('product_id', $item->product_id)->get();
+                foreach ($bom as $mat) {
+                    $requiredQty = $mat->qty_per_unit * $item->quantity;
+                    $inv = InventoryItem::find($mat->inventory_item_id);
+                    if ($inv) {
+                        $inv->decrement('quantity_on_hand', $requiredQty);
+                        // record usage row
+                        InventoryUsage::create([
+                            'inventory_item_id' => $inv->id,
+                            'date' => now()->toDateString(),
+                            'qty_used' => $requiredQty,
+                        ]);
+                    }
+                }
+
+                // Auto-create Production record for this item
+                Production::create([
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'date' => now()->toDateString(),
+                    'stage' => 'Preparation',
+                    'status' => 'Pending',
+                    'quantity' => $item->quantity,
+                    'resources_used' => $bom->map(function ($m) use ($item) {
+                        return [
+                            'inventory_item_id' => $m->inventory_item_id,
+                            'qty' => $m->qty_per_unit * $item->quantity,
+                        ];
+                    })->values(),
+                    'notes' => 'Generated from Order #' . $order->id
+                ]);
+            }
+
+            // Clear cart
+            Cart::where('user_id', $user->id)->delete();
+
+            return response()->json(['message' => 'Checkout successful', 'order_id' => $order->id]);
+        });
     }
 
 
