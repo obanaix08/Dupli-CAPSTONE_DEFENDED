@@ -45,7 +45,7 @@ const ProductPage = () => {
 
   return (
     <AppLayout>
-    <div className="container py-4 wood-animated">
+    <div className="container py-4 wood-animated" role="region" aria-labelledby="prod-heading">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         {/* Back Button */}
         <button className="btn btn-outline-secondary mb-3 btn-wood" onClick={() => navigate("/dashboard")}>
@@ -54,7 +54,7 @@ const ProductPage = () => {
 
         {/* Page Header */}
         <div className="text-center mb-4">
-          <h2 className="fw-bold">Unick Furniture Products</h2>
+          <h2 id="prod-heading" className="fw-bold">Unick Furniture Products</h2>
 
         </div>
 

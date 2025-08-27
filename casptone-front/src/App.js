@@ -21,6 +21,7 @@ const isAuthenticated = () => !!localStorage.getItem("token");
 function App() {
     return (
         <Router>
+            <main id="main-content">
             <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
@@ -40,6 +41,7 @@ function App() {
                 {/* Redirect unknown routes */}
                 <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
+            </main>
         </Router>
     );
 }

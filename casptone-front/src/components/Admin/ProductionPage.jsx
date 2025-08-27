@@ -197,7 +197,7 @@ export default function ProductionTrackingSystem() {
   return (
 
     <AppLayout>
-    <div className="container-fluid py-4 wood-animated">
+    <div className="container-fluid py-4 wood-animated" role="region" aria-labelledby="prod-track-heading">
       {/* Back Button */}
       <button className="btn btn-outline-secondary mb-3" onClick={() => navigate("/dashboard")}>
         ← Back to Dashboard
@@ -208,7 +208,7 @@ export default function ProductionTrackingSystem() {
     <div className="container-fluid py-4" style={{ minHeight: '100vh' }}>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="text-primary">Production Tracking — Unick Enterprises Inc.</h2>
+        <h2 id="prod-track-heading" className="text-primary">Production Tracking — Unick Enterprises Inc.</h2>
         <div>
           <button className="btn btn-outline-primary me-2" onClick={bulkExportCSV}>
             Export CSV

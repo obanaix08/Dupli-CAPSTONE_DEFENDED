@@ -670,7 +670,7 @@ const InventoryPage = () => {
 
   return (
     <AppLayout>
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-4" role="region" aria-labelledby="inv-heading">
       {/* Back Button */}
       <button className="btn btn-outline-secondary mb-3" onClick={() => navigate("/dashboard")}>
         ← Back to Dashboard
@@ -681,7 +681,7 @@ const InventoryPage = () => {
     <div className="container-fluid py-4">
       {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-3">
-        <h2 className="mb-0">Inventory Management</h2>
+        <h2 id="inv-heading" className="mb-0">Inventory Management</h2>
         <div className="d-flex gap-2 flex-wrap">
           <button className="btn btn-success" onClick={handleAddMaterial}>
             + Add Material

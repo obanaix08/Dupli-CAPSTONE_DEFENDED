@@ -55,6 +55,7 @@ function ThemeWrapper(){
 
   return (
     <div className={wrapperClass}>
+      <a href="#main-content" className="visually-hidden focus-visible" style={{position:'absolute',left:'8px',top:'8px',zIndex:2000,background:'#fff',padding:'6px 10px',borderRadius:'6px'}}>Skip to content</a>
       <App />
       <div id="theme-toast" className="toast-wood" role="status" aria-live="polite" style={{ display: 'none' }}>Theme</div>
     </div>
