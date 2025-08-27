@@ -36,16 +36,17 @@ const Report = () => {
 
     return (
         <AppLayout>
-            <div className="container mt-4 wood-animated">
-                <h2 className="fw-bold">Inventory Replenishment Report</h2>
+            <div className="container mt-4 wood-animated" role="region" aria-labelledby="inv-report-heading">
+                <h2 id="inv-report-heading" className="fw-bold">Inventory Replenishment Report</h2>
                 <div className="d-flex gap-2 mb-3">
-                    <button className="btn btn-wood" onClick={downloadStockCsv}>Download Stock CSV</button>
-                    <button className="btn btn-wood" onClick={() => downloadUsageCsv(90)}>Download Usage CSV</button>
-                    <button className="btn btn-wood" onClick={downloadReplenishmentCsv}>Download Replenishment CSV</button>
+                    <button className="btn btn-wood" aria-label="Download stock as CSV" onClick={downloadStockCsv}>Download Stock CSV</button>
+                    <button className="btn btn-wood" aria-label="Download usage as CSV" onClick={() => downloadUsageCsv(90)}>Download Usage CSV</button>
+                    <button className="btn btn-wood" aria-label="Download replenishment as CSV" onClick={downloadReplenishmentCsv}>Download Replenishment CSV</button>
                     <div className="ms-auto d-flex align-items-center gap-2">
-                        <label className="mb-0">Forecast window (days)</label>
-                        <input type="number" min="7" max="120" className="form-control" style={{width:120}}
-                               value={windowDays} onChange={(e)=> setWindowDays(Number(e.target.value)||30)} />
+                        <label htmlFor="fc-window" className="mb-0">Forecast window (days)</label>
+                        <input id="fc-window" type="number" min="7" max="120" className="form-control" style={{width:120}}
+                               value={windowDays} onChange={(e)=> setWindowDays(Number(e.target.value)||30)} aria-describedby="fc-help" />
+                        <span id="fc-help" className="visually-hidden">Adjusts moving average window for forecasting</span>
                     </div>
                 </div>
                 {loading ? (
@@ -55,7 +56,7 @@ const Report = () => {
                 ) : (
                     <div className="card shadow-sm wood-card">
                         <div className="table-responsive">
-                            <table className="table table-hover mb-0">
+                            <table className="table table-hover mb-0" role="table" aria-label="Replenishment suggestions">
                                 <thead className="table-light">
                                     <tr>
                                         <th>SKU</th>
@@ -87,9 +88,9 @@ const Report = () => {
                             </table>
                         </div>
                         <div className="p-3">
-                            <h5>Forecast (Moving Average)</h5>
+                            <h5 id="forecast-heading">Forecast (Moving Average)</h5>
                             <div className="table-responsive">
-                                <table className="table table-sm table-striped">
+                                <table className="table table-sm table-striped" role="table" aria-labelledby="forecast-heading">
                                     <thead>
                                         <tr>
                                             <th>SKU</th>

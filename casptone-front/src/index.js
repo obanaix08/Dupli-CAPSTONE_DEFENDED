@@ -56,7 +56,7 @@ function ThemeWrapper(){
   return (
     <div className={wrapperClass}>
       <App />
-      <div id="theme-toast" className="toast-wood" style={{ display: 'none' }}>Theme</div>
+      <div id="theme-toast" className="toast-wood" role="status" aria-live="polite" style={{ display: 'none' }}>Theme</div>
     </div>
   );
 }

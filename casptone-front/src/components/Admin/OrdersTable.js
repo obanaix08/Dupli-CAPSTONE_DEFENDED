@@ -117,20 +117,22 @@ const OrdersTable = () => {
   return (
     <div className="orders-container wood-animated">
       {/* Filter Section */}
-      <div className="filter-box mb-4 wood-card wood-parallax">
-        <h5>📅 Filter Orders</h5>
+      <div className="filter-box mb-4 wood-card wood-parallax" role="region" aria-labelledby="orders-filter">
+        <h5 id="orders-filter">📅 Filter Orders</h5>
         <div className="filter-grid">
           <div>
-            <label>Start Date</label>
+            <label htmlFor="start-date">Start Date</label>
             <input
+              id="start-date"
               type="date"
               value={startDate}
               onChange={handleStartDateChange}
             />
           </div>
           <div>
-            <label>End Date</label>
+            <label htmlFor="end-date">End Date</label>
             <input
+              id="end-date"
               type="date"
               value={endDate}
               onChange={handleEndDateChange}
@@ -142,10 +144,10 @@ const OrdersTable = () => {
       </div>
 
       {/* Orders Grid */}
-      <div className="orders-grid">
+      <div className="orders-grid" role="table" aria-label="Orders">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
-            <div key={order.id} className="order-card wood-card wood-parallax">
+            <div key={order.id} className="order-card wood-card wood-parallax" role="row">
               <h5>Order #{order.id}</h5>
               <p>
                 <strong>Total:</strong> ₱{parseFloat(order.total_price).toFixed(2)}
@@ -168,9 +170,9 @@ const OrdersTable = () => {
                 </span>
               </p>
               <div className="order-actions">
-                <button className="btn-wood" onClick={() => handleViewDetails(order)}>👁 View</button>
+                <button className="btn-wood" aria-label={`View order ${order.id}`} onClick={() => handleViewDetails(order)}>👁 View</button>
                 {order.status !== "completed" && (
-                  <button className="btn-wood" onClick={() => handleMarkAsComplete(order)}>
+                  <button className="btn-wood" aria-label={`Mark order ${order.id} complete`} onClick={() => handleMarkAsComplete(order)}>
                     ✅ Mark Complete
                   </button>
                 )}
