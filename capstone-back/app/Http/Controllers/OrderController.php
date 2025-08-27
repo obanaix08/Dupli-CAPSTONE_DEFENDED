@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Production;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -55,6 +56,9 @@ class OrderController extends Controller
 
             // Auto-create Production record for this item
             Production::create([
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'product_id' => $item->product_id,
                 'product_name' => $item->product->name,
                 'date' => now()->toDateString(),
                 'stage' => 'Preparation',
@@ -90,6 +94,46 @@ class OrderController extends Controller
         }
 
         return response()->json(Order::where('user_id', $user->id)->with('items.product')->get());
+    }
+
+    public function tracking($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $order = Order::with('items.product')->where('id', $id)->where('user_id', $user->id)->first();
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        $stages = ['Design','Preparation','Cutting','Assembly','Finishing','Quality Control'];
+        $productions = Production::where('order_id', $order->id)->get();
+
+        $stageSummary = collect($stages)->map(function ($s) use ($productions) {
+            $items = $productions->where('stage', $s);
+            return [
+                'stage' => $s,
+                'in_progress' => $items->where('status','In Progress')->count(),
+                'completed' => $items->where('status','Completed')->count(),
+                'pending' => $items->where('status','Pending')->count(),
+            ];
+        })->values();
+
+        $overall = [
+            'total' => $productions->count(),
+            'completed' => $productions->where('status','Completed')->count(),
+            'pending' => $productions->where('status','Pending')->count(),
+            'in_progress' => $productions->where('status','In Progress')->count(),
+        ];
+
+        return response()->json([
+            'order' => $order,
+            'stage_summary' => $stageSummary,
+            'productions' => $productions,
+            'overall' => $overall,
+        ]);
     }
 
     public function show($id)

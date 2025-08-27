@@ -54,10 +54,15 @@ const Header = ({ role, username }) => {
 
             <div style={styles.right}>
                 {role === "customer" && (
+                    <>
+                    <button style={styles.iconBtn} onClick={() => navigate("/my-orders")}>
+                        My Orders
+                    </button>
                     <button style={styles.iconBtn} onClick={() => navigate("/cart")}>
                         <ShoppingCart size={24} />
                         {cartCount > 0 && <span style={styles.cartBadge}>{cartCount}</span>}
                     </button>
+                    </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
