@@ -47,7 +47,7 @@ const Header = ({ role, username }) => {
     };
 
     return (
-        <header style={role === "customer" ? styles.headerTransparent : styles.headerSolid}>
+        <header style={role === "customer" ? styles.headerTransparent : styles.headerWood}>
             <div style={styles.left} onClick={() => navigate("/dashboard")}>
                 <h2 style={styles.logo}>UNICK FURNITURE</h2>
             </div>
@@ -161,11 +161,11 @@ const styles = {
         zIndex: 999,
         boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
     },
-    headerSolid: {
+    headerWood: {
         width: "100%",
         height: "60px",
-        backgroundColor: "#333",
-        color: "#fff",
+        background: "linear-gradient(180deg, #e8d9c6, #d9c7ae)",
+        color: "#2f2a26",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -174,6 +174,7 @@ const styles = {
         top: 0,
         left: 0,
         zIndex: 999,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
     },
     left: {
         display: "flex",
@@ -214,12 +215,13 @@ const styles = {
         padding: "2px 6px",
     },
     logoutBtn: {
-        backgroundColor: "#ff4d4f",
+        background: "linear-gradient(180deg, #b5835a, #8b5e34)",
         color: "#fff",
         border: "none",
-        borderRadius: "4px",
+        borderRadius: "8px",
         padding: "6px 12px",
         cursor: "pointer",
+        boxShadow: "0 8px 16px rgba(139,94,52,0.25)",
     },
 
     
