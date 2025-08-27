@@ -39,9 +39,9 @@ const Report = () => {
             <div className="container mt-4 wood-animated">
                 <h2 className="fw-bold">Inventory Replenishment Report</h2>
                 <div className="d-flex gap-2 mb-3">
-                    <button className="btn btn-outline-secondary" onClick={downloadStockCsv}>Download Stock CSV</button>
-                    <button className="btn btn-outline-secondary" onClick={() => downloadUsageCsv(90)}>Download Usage CSV</button>
-                    <button className="btn btn-outline-primary" onClick={downloadReplenishmentCsv}>Download Replenishment CSV</button>
+                    <button className="btn btn-wood" onClick={downloadStockCsv}>Download Stock CSV</button>
+                    <button className="btn btn-wood" onClick={() => downloadUsageCsv(90)}>Download Usage CSV</button>
+                    <button className="btn btn-wood" onClick={downloadReplenishmentCsv}>Download Replenishment CSV</button>
                     <div className="ms-auto d-flex align-items-center gap-2">
                         <label className="mb-0">Forecast window (days)</label>
                         <input type="number" min="7" max="120" className="form-control" style={{width:120}}

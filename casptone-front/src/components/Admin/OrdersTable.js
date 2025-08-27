@@ -115,9 +115,9 @@ const OrdersTable = () => {
   if (loading) return <p>Loading orders...</p>;
 
   return (
-    <div className="orders-container">
+    <div className="orders-container wood-animated">
       {/* Filter Section */}
-      <div className="filter-box mb-4">
+      <div className="filter-box mb-4 wood-card wood-parallax">
         <h5>📅 Filter Orders</h5>
         <div className="filter-grid">
           <div>
@@ -145,7 +145,7 @@ const OrdersTable = () => {
       <div className="orders-grid">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
-            <div key={order.id} className="order-card">
+            <div key={order.id} className="order-card wood-card wood-parallax">
               <h5>Order #{order.id}</h5>
               <p>
                 <strong>Total:</strong> ₱{parseFloat(order.total_price).toFixed(2)}
@@ -168,9 +168,9 @@ const OrdersTable = () => {
                 </span>
               </p>
               <div className="order-actions">
-                <button onClick={() => handleViewDetails(order)}>👁 View</button>
+                <button className="btn-wood" onClick={() => handleViewDetails(order)}>👁 View</button>
                 {order.status !== "completed" && (
-                  <button onClick={() => handleMarkAsComplete(order)}>
+                  <button className="btn-wood" onClick={() => handleMarkAsComplete(order)}>
                     ✅ Mark Complete
                   </button>
                 )}
@@ -185,7 +185,7 @@ const OrdersTable = () => {
       {/* Order Details Modal */}
       {showModal && selectedOrder && (
         <div className="modal-overlay">
-          <div className="modal-box">
+          <div className="modal-box wood-card">
             <h5>Order #{selectedOrder.id} Details</h5>
             <ul>
               {orderItems.map((item) => (
@@ -194,7 +194,7 @@ const OrdersTable = () => {
                 </li>
               ))}
             </ul>
-            <button className="close-btn" onClick={() => setShowModal(false)}>
+            <button className="close-btn btn-wood" onClick={() => setShowModal(false)}>
               Close
             </button>
           </div>
@@ -204,7 +204,7 @@ const OrdersTable = () => {
       {/* Confirm Modal */}
       {showConfirmModal && selectedOrder && (
         <div className="modal-overlay">
-          <div className="modal-box">
+          <div className="modal-box wood-card">
             <h5>Confirm Order Completion</h5>
             <p>
               Are you sure you want to mark order #{selectedOrder.id} as
@@ -218,8 +218,8 @@ const OrdersTable = () => {
               ))}
             </ul>
             <div className="modal-actions">
-              <button onClick={() => setShowConfirmModal(false)}>Cancel</button>
-              <button onClick={confirmMarkAsComplete}>Confirm</button>
+              <button className="btn-wood" onClick={() => setShowConfirmModal(false)}>Cancel</button>
+              <button className="btn-wood" onClick={confirmMarkAsComplete}>Confirm</button>
             </div>
           </div>
         </div>
@@ -231,8 +231,8 @@ const OrdersTable = () => {
           padding: 20px;
         }
         .filter-box {
-          background: #fefaf6;
-          border: 2px solid #6b4226;
+          background: transparent;
+          border: 0;
           padding: 15px;
           border-radius: 12px;
         }
@@ -251,11 +251,11 @@ const OrdersTable = () => {
           gap: 20px;
         }
         .order-card {
-          background: #fffdf9;
-          border: 2px solid #e0c097;
+          background: transparent;
+          border: 0;
           border-radius: 12px;
           padding: 15px;
-          box-shadow: 0 4px 10px rgba(107, 66, 38, 0.1);
+          box-shadow: none;
         }
         .status-badge {
           padding: 4px 10px;
@@ -283,14 +283,8 @@ const OrdersTable = () => {
           cursor: pointer;
           font-weight: bold;
         }
-        .order-actions button:first-child {
-          background: #3498db;
-          color: white;
-        }
-        .order-actions button:last-child {
-          background: #27ae60;
-          color: white;
-        }
+        .order-actions button:first-child {}
+        .order-actions button:last-child {}
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -303,7 +297,7 @@ const OrdersTable = () => {
           align-items: center;
         }
         .modal-box {
-          background: #fffdf9;
+          background: transparent;
           padding: 20px;
           border-radius: 12px;
           width: 400px;
@@ -315,15 +309,7 @@ const OrdersTable = () => {
           justify-content: flex-end;
           gap: 10px;
         }
-        .close-btn {
-          margin-top: 10px;
-          padding: 6px 12px;
-          background: #e74c3c;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-        }
+        .close-btn { margin-top: 10px; }
         .empty-msg {
           text-align: center;
           color: #6b4226;

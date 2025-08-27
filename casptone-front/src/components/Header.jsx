@@ -141,6 +141,11 @@ const AppLayout = ({ children }) => {
             >
                 {children}
             </div>
+            <footer className="footer-wood text-center" style={{ marginLeft: role !== "customer" ? "250px" : 0 }}>
+                <div className="container">
+                    <small>© {new Date().getFullYear()} Unick Furniture — Crafted with care</small>
+                </div>
+            </footer>
         </>
     );
 };
