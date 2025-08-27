@@ -13,6 +13,7 @@ import InventoryPage from "./components/Admin/InventoryPage";
 import OrderPage from "./components/Admin/OrderPage"; 
 import Report from "./components/Admin/Report"; 
 import MyOrders from "./components/Customers/MyOrders";
+import OrderTracking from "./components/Customers/OrderTracking";
 
 // ✅ Authentication Check
 const isAuthenticated = () => !!localStorage.getItem("token");
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/productions" element={isAuthenticated() ? <ProductionPage /> : <Navigate to="/login" />} /> 
                 <Route path="/orders" element={isAuthenticated() ? <OrderPage /> : <Navigate to="/login" />} /> 
                 <Route path="/reports" element={isAuthenticated() ? <Report /> : <Navigate to="/login" />} /> 
+                <Route path="/track/:orderId" element={isAuthenticated() ? <TrackWrapper /> : <Navigate to="/login" />} />
 
                 {/* Redirect unknown routes */}
                 <Route path="*" element={<Navigate to="/login" />} />
@@ -43,3 +45,12 @@ function App() {
 }
 
 export default App;
+
+function TrackWrapper(){
+    const params = new URLSearchParams(window.location.search);
+    // React Router v6: useParams would be preferred, but we avoid extra imports here
+    const path = window.location.pathname || "";
+    const segs = path.split("/");
+    const id = segs[segs.length - 1];
+    return <div className="container mt-4"><OrderTracking orderId={id} /></div>;
+}

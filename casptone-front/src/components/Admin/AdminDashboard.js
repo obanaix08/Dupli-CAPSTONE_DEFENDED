@@ -17,6 +17,8 @@ const AdminDashboard = () => {
   const [overview, setOverview] = useState(null);
   const [forecastSort, setForecastSort] = useState({ key: "days_to_depletion", dir: "asc" });
   const [forecastFilter, setForecastFilter] = useState({ text: "", onlyReorder: false });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const fetchAnalytics = async () => {
     const data = await getAnalytics(filters);
@@ -63,6 +65,7 @@ const AdminDashboard = () => {
   };
 
   const badge = (row) => {
+    if (row.max_level && row.on_hand > row.max_level) return <span className="badge bg-warning text-dark">Overstock</span>;
     if (row.suggested_order > 0) return <span className="badge bg-danger">Reorder now</span>;
     return <span className="badge bg-success">OK</span>;
   };
@@ -166,6 +169,18 @@ const AdminDashboard = () => {
               <label htmlFor="onlyReorder" className="form-check-label">Only Reorder</label>
             </div>
           </div>
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <label className="mb-0">Rows</label>
+            <select className="form-select" style={{width: 'auto'}} value={pageSize} onChange={(e)=> { setPage(1); setPageSize(Number(e.target.value)); }}>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <div className="ms-auto">
+              <button className="btn btn-sm btn-outline-secondary me-2" disabled={page<=1} onClick={()=> setPage(p=> Math.max(1,p-1))}>Prev</button>
+              <button className="btn btn-sm btn-outline-secondary" onClick={()=> setPage(p=> p+1)}>Next</button>
+            </div>
+          </div>
           <div className="table-responsive">
             <table className="table table-sm table-striped">
               <thead>
@@ -181,7 +196,12 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedFilteredForecasts().map((f) => (
+                {(() => {
+                  const rows = sortedFilteredForecasts();
+                  const start = (page - 1) * pageSize;
+                  const paged = rows.slice(start, start + pageSize);
+                  return paged;
+                })().map((f) => (
                   <tr key={f.sku}>
                     <td>{f.sku}</td>
                     <td>{f.name}</td>
