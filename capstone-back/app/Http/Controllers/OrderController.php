@@ -121,11 +121,24 @@ class OrderController extends Controller
             ];
         })->values();
 
+        // Simple ETA: assume each stage takes 2 days per item
+        $perStageDays = 2;
+        $totalJobs = max(1, $productions->count());
+        $completedJobs = $productions->where('status','Completed')->count();
+        $inProgressJobs = $productions->where('status','In Progress')->count();
+        $progressRatio = ($completedJobs + 0.5 * $inProgressJobs) / $totalJobs;
+        $progressPct = round($progressRatio * 100);
+        $estimatedTotalDays = count($stages) * $perStageDays; // coarse
+        $remainingDays = max(0, round($estimatedTotalDays * (1 - $progressRatio)));
+        $etaDate = now()->addDays($remainingDays)->toDateString();
+
         $overall = [
             'total' => $productions->count(),
-            'completed' => $productions->where('status','Completed')->count(),
+            'completed' => $completedJobs,
             'pending' => $productions->where('status','Pending')->count(),
-            'in_progress' => $productions->where('status','In Progress')->count(),
+            'in_progress' => $inProgressJobs,
+            'progress_pct' => $progressPct,
+            'eta' => $etaDate,
         ];
 
         return response()->json([

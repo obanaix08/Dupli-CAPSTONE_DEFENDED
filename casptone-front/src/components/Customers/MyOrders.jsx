@@ -80,6 +80,19 @@ export default function MyOrders() {
           <div className="card mt-3">
             <div className="card-header">Order #{selected.id} Tracking</div>
             <div className="card-body">
+              {tracking.overall && (
+                <div className="mb-3">
+                  <div className="d-flex justify-content-between">
+                    <div className="fw-bold">Progress</div>
+                    <div className="text-muted small">ETA: {tracking.overall.eta}</div>
+                  </div>
+                  <div className="progress" role="progressbar" aria-valuenow={tracking.overall.progress_pct} aria-valuemin="0" aria-valuemax="100">
+                    <div className="progress-bar" style={{ width: `${tracking.overall.progress_pct}%` }}>
+                      {tracking.overall.progress_pct}%
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="row">
                 {tracking.stage_summary.map((s) => (
                   <div className="col-md-4 mb-3" key={s.stage}>
