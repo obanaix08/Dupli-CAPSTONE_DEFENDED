@@ -1,15 +1,47 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <div className="wood-app">
+function ThemeWrapper(){
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'wood');
+
+  useEffect(() => {
+    const handler = (e) => {
+      const next = e?.detail || (theme === 'wood' ? 'standard' : 'wood');
+      setTheme(next);
+      localStorage.setItem('theme', next);
+    };
+    window.addEventListener('toggle-theme', handler);
+    window.setTheme = (t) => handler({ detail: t });
+    return () => window.removeEventListener('toggle-theme', handler);
+  }, [theme]);
+
+  useEffect(() => {
+    const onClick = (ev) => {
+      const el = ev.target.closest('.btn-wood');
+      if (el && navigator.vibrate) {
+        try { navigator.vibrate(12); } catch {}
+      }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
+
+  const wrapperClass = useMemo(() => (theme === 'wood' ? 'wood-app' : ''), [theme]);
+
+  return (
+    <div className={wrapperClass}>
       <App />
     </div>
+  );
+}
+
+root.render(
+  <React.StrictMode>
+    <ThemeWrapper />
   </React.StrictMode>
 );
 
