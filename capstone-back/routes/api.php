@@ -11,6 +11,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\AdminOverviewController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -54,6 +55,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/usage', [UsageController::class, 'store']);
 
     Route::get('/replenishment', [ReportController::class, 'replenishment']);
+    Route::get('/forecast', [ReportController::class, 'forecast']);
+    Route::get('/reports/stock.csv', [ReportController::class, 'stockCsv']);
+    Route::get('/reports/usage.csv', [ReportController::class, 'usageCsv']);
+    Route::get('/reports/replenishment.csv', [ReportController::class, 'replenishmentCsv']);
 
     //Production Routes
     
@@ -63,6 +68,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/productions/{id}', [ProductionController::class, 'show']);
     Route::patch('/productions/{id}', [ProductionController::class, 'update']);
     Route::delete('/productions/{id}', [ProductionController::class, 'destroy']);
+
+    // Admin Overview
+    Route::get('/admin/overview', [AdminOverviewController::class, 'index']);
 
 });
 
