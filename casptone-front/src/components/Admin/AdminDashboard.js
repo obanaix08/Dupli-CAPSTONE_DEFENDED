@@ -15,6 +15,8 @@ const AdminDashboard = () => {
     status: "",
   });
   const [overview, setOverview] = useState(null);
+  const [forecastSort, setForecastSort] = useState({ key: "days_to_depletion", dir: "asc" });
+  const [forecastFilter, setForecastFilter] = useState({ text: "", onlyReorder: false });
 
   const fetchAnalytics = async () => {
     const data = await getAnalytics(filters);
@@ -37,6 +39,32 @@ const AdminDashboard = () => {
 
   const applyFilters = () => {
     fetchAnalytics();
+  };
+
+  const sortedFilteredForecasts = () => {
+    const rows = [...(overview?.forecasts || [])];
+    const { text, onlyReorder } = forecastFilter;
+    const filtered = rows.filter(r => {
+      const matches = !text || (r.sku?.toLowerCase().includes(text.toLowerCase()) || r.name?.toLowerCase().includes(text.toLowerCase()));
+      const reorder = r.suggested_order > 0;
+      return matches && (!onlyReorder || reorder);
+    });
+    const { key, dir } = forecastSort;
+    filtered.sort((a,b) => {
+      const va = a[key] ?? 0; const vb = b[key] ?? 0;
+      if (typeof va === "string") return dir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
+      return dir === "asc" ? (va - vb) : (vb - va);
+    });
+    return filtered;
+  };
+
+  const sortBy = (key) => {
+    setForecastSort(prev => ({ key, dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc" }));
+  };
+
+  const badge = (row) => {
+    if (row.suggested_order > 0) return <span className="badge bg-danger">Reorder now</span>;
+    return <span className="badge bg-success">OK</span>;
   };
 
   return (
@@ -122,21 +150,38 @@ const AdminDashboard = () => {
       ) : (
         <div className="mt-4">
           <h4>Inventory Forecasts</h4>
+          <div className="d-flex gap-2 mb-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search SKU or Name"
+              value={forecastFilter.text}
+              onChange={(e)=> setForecastFilter({ ...forecastFilter, text: e.target.value })}
+              style={{ maxWidth: 300 }}
+            />
+            <div className="form-check ms-2">
+              <input id="onlyReorder" className="form-check-input" type="checkbox"
+                     checked={forecastFilter.onlyReorder}
+                     onChange={(e)=> setForecastFilter({ ...forecastFilter, onlyReorder: e.target.checked })} />
+              <label htmlFor="onlyReorder" className="form-check-label">Only Reorder</label>
+            </div>
+          </div>
           <div className="table-responsive">
             <table className="table table-sm table-striped">
               <thead>
                 <tr>
-                  <th>SKU</th>
-                  <th>Name</th>
-                  <th className="text-end">On Hand</th>
-                  <th className="text-end">Avg Daily</th>
-                  <th className="text-end">Days to Depletion</th>
-                  <th className="text-end">ROP</th>
-                  <th className="text-end">Suggested Order</th>
+                  <th role="button" onClick={()=>sortBy('sku')}>SKU</th>
+                  <th role="button" onClick={()=>sortBy('name')}>Name</th>
+                  <th role="button" className="text-end" onClick={()=>sortBy('on_hand')}>On Hand</th>
+                  <th role="button" className="text-end" onClick={()=>sortBy('avg_daily_usage')}>Avg Daily</th>
+                  <th role="button" className="text-end" onClick={()=>sortBy('days_to_depletion')}>Days to Depletion</th>
+                  <th role="button" className="text-end" onClick={()=>sortBy('reorder_point')}>ROP</th>
+                  <th role="button" className="text-end" onClick={()=>sortBy('suggested_order')}>Suggested Order</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {overview.forecasts?.map((f) => (
+                {sortedFilteredForecasts().map((f) => (
                   <tr key={f.sku}>
                     <td>{f.sku}</td>
                     <td>{f.name}</td>
@@ -145,6 +190,7 @@ const AdminDashboard = () => {
                     <td className="text-end">{f.days_to_depletion ?? "-"}</td>
                     <td className="text-end">{f.reorder_point}</td>
                     <td className="text-end fw-bold">{f.suggested_order}</td>
+                    <td>{badge(f)}</td>
                   </tr>
                 ))}
               </tbody>

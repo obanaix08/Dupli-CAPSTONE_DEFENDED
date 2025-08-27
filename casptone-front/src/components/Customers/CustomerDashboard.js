@@ -3,12 +3,14 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { Spinner } from "react-bootstrap";
 import ProductCatalog from "./ProductCatalog";
+import OrderTracking from "./OrderTracking";
 import "./ProductCatalog";
 
 const CustomerDashboard = () => {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState("");
 
     useEffect(() => {
         fetchProducts();
@@ -62,6 +64,16 @@ const CustomerDashboard = () => {
                     />
                 </div>
 
+                <div className="d-flex justify-content-center mb-3 gap-2">
+                    <input
+                        type="number"
+                        className="form-control w-25"
+                        placeholder="Enter Order ID to track"
+                        value={selectedOrderId}
+                        onChange={(e)=> setSelectedOrderId(e.target.value)}
+                    />
+                </div>
+
                 <div className="card p-4 shadow-lg">
                     {loading ? (
                         <div className="d-flex justify-content-center align-items-center">
@@ -72,6 +84,12 @@ const CustomerDashboard = () => {
                         <ProductCatalog products={filteredProducts} />
                     )}
                 </div>
+
+                {selectedOrderId && (
+                    <div className="mt-3">
+                        <OrderTracking orderId={selectedOrderId} />
+                    </div>
+                )}
             </motion.div>
         </div>
     );
