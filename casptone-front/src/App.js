@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // Components
@@ -47,10 +47,6 @@ function App() {
 export default App;
 
 function TrackWrapper(){
-    const params = new URLSearchParams(window.location.search);
-    // React Router v6: useParams would be preferred, but we avoid extra imports here
-    const path = window.location.pathname || "";
-    const segs = path.split("/");
-    const id = segs[segs.length - 1];
-    return <div className="container mt-4"><OrderTracking orderId={id} /></div>;
+    const { orderId } = useParams();
+    return <div className="container mt-4"><OrderTracking orderId={orderId} /></div>;
 }

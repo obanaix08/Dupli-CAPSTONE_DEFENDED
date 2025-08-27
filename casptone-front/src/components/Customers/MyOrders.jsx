@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AppLayout from "../Header";
+import { Link } from "react-router-dom";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -65,8 +66,9 @@ export default function MyOrders() {
                       <td>{new Date(o.checkout_date).toLocaleDateString()}</td>
                       <td className="text-end">₱{Number(o.total_price).toLocaleString()}</td>
                       <td><span className="badge text-bg-secondary">{o.status}</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-primary" onClick={() => viewTracking(o)}>Track</button>
+                      <td className="d-flex gap-2">
+                        <button className="btn btn-sm btn-outline-secondary" onClick={() => viewTracking(o)}>View</button>
+                        <Link className="btn btn-sm btn-primary" to={`/track/${o.id}`}>Track</Link>
                       </td>
                     </tr>
                   ))}
