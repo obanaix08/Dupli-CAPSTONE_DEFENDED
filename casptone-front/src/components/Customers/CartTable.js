@@ -141,7 +141,14 @@ const CartTable = () => {
 
     } catch (err) {
       console.error("Checkout failed:", err);
-      alert(`Checkout failed: ${err.response?.data?.message || err.message || "Unknown error"}`);
+      const msg = err.response?.data?.message || err.message || "Unknown error";
+      const shortages = err.response?.status === 422 ? (err.response?.data?.shortages || []) : [];
+      if (shortages.length > 0) {
+        const lines = shortages.map(s => `• ${s.material_name} (SKU ${s.sku}): need ${s.required}, on hand ${s.on_hand}, deficit ${s.deficit} for ${s.product_name}`).join("\n");
+        alert(`Cannot place order due to insufficient materials:\n\n${lines}\n\nPlease reduce quantity or wait for replenishment.`);
+      } else {
+        alert(`Checkout failed: ${msg}`);
+      }
     }
   };
 
