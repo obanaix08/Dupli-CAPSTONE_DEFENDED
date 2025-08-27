@@ -53,6 +53,19 @@ code {
   border-top: 1px solid rgba(0,0,0,0.08);
 }
 
+.toast-wood {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: linear-gradient(180deg, #e6d7c3, #d9c7ae);
+  color: #2f2a26;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  z-index: 2000;
+}
+
 .wood-header {
   background: linear-gradient(180deg, #e8d9c6, #d9c7ae);
   border-bottom: 1px solid rgba(0,0,0,0.08);

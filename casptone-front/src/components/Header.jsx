@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, Sun, Moon } from "lucide-react";
 import { LayoutDashboard, Package, ClipboardList, Boxes, Factory, BarChart } from "lucide-react";
 
 
@@ -65,7 +65,9 @@ const Header = ({ role, username }) => {
                     </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
-                <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>Theme</button>
+                <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                    {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
+                </button>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
             </div>
         </header>
@@ -113,7 +115,7 @@ const Sidebar = () => {
                 </nav>
                 <div className="mt-3">
                     <button style={styles.themeBtn} onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
-                        Toggle Theme
+                        {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
                     </button>
                 </div>
             </div>

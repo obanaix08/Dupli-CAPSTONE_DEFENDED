@@ -13,6 +13,15 @@ function ThemeWrapper(){
       const next = e?.detail || (theme === 'wood' ? 'standard' : 'wood');
       setTheme(next);
       localStorage.setItem('theme', next);
+      try {
+        const el = document.getElementById('theme-toast');
+        if (el) {
+          el.textContent = `Theme: ${next}`;
+          el.style.display = 'block';
+          clearTimeout(window._themeToastTimer);
+          window._themeToastTimer = setTimeout(()=> { if (el) el.style.display = 'none'; }, 1400);
+        }
+      } catch {}
     };
     window.addEventListener('toggle-theme', handler);
     window.setTheme = (t) => handler({ detail: t });
@@ -35,6 +44,7 @@ function ThemeWrapper(){
   return (
     <div className={wrapperClass}>
       <App />
+      <div id="theme-toast" className="toast-wood" style={{ display: 'none' }}>Theme</div>
     </div>
   );
 }
