@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Production;
 use Illuminate\Http\Request;
 use App\Events\ProductionUpdated;
+use App\Notifications\OrderStageUpdated;
+use App\Models\Order;
 
 class ProductionController extends Controller
 {
@@ -68,11 +70,25 @@ class ProductionController extends Controller
             'notes'         => 'nullable|string',
         ]);
 
+        $old = $production->replicate();
         $production->update($data);
 
         $production->load(['user', 'product']); // reload relationships
 
         broadcast(new ProductionUpdated($production))->toOthers();
+
+        // Notify customer on stage or status change
+        if (($data['stage'] ?? null) || ($data['status'] ?? null)) {
+            $order = $production->order_id ? Order::with('user')->find($production->order_id) : null;
+            if ($order && $order->user) {
+                $order->user->notify(new OrderStageUpdated(
+                    $order->id,
+                    $production->product_name,
+                    $production->stage,
+                    $production->status
+                ));
+            }
+        }
 
         return response()->json($production);
     }
