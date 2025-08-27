@@ -88,6 +88,10 @@ code {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(139,94,52,0.35);
 }
+.btn-wood:focus-visible {
+  outline: 3px solid rgba(139,94,52,0.5);
+  outline-offset: 2px;
+}
 
 .icon-wood {
   width: 36px;
@@ -103,6 +107,10 @@ code {
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 .icon-wood:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(139,94,52,0.35); }
+.icon-wood:focus-visible {
+  outline: 3px solid rgba(139,94,52,0.5);
+  outline-offset: 2px;
+}
 
 /* Subtle grain shimmer */
 @keyframes grainShift {
