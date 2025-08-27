@@ -27,6 +27,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::get('/products/{id}/materials', [ProductController::class, 'getMaterials']);
     Route::post('/products/{id}/materials', [ProductController::class, 'setMaterials']);
+    Route::get('/products/{id}/materials/export', [ProductController::class, 'exportMaterialsCsv']);
+    Route::post('/products/{id}/materials/import', [ProductController::class, 'importMaterialsCsv']);
 
     // Cart Routes
     Route::post('/cart', [CartController::class, 'addToCart']);  // 

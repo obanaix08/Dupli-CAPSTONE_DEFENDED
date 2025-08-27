@@ -37,6 +37,33 @@ class OrderController extends Controller
             $totalPrice += $item->product->price * $item->quantity;
         }
 
+        // Pre-check: ensure raw materials are sufficient based on BOM
+        $shortages = [];
+        foreach ($cartItems as $item) {
+            $bom = ProductMaterial::where('product_id', $item->product_id)->get();
+            foreach ($bom as $mat) {
+                $requiredQty = $mat->qty_per_unit * $item->quantity;
+                $inv = InventoryItem::find($mat->inventory_item_id);
+                if ($inv && ($inv->quantity_on_hand < $requiredQty)) {
+                    $shortages[] = [
+                        'product_id' => $item->product_id,
+                        'product_name' => $item->product->name,
+                        'sku' => $inv->sku,
+                        'material_name' => $inv->name,
+                        'on_hand' => $inv->quantity_on_hand,
+                        'required' => $requiredQty,
+                        'deficit' => max(0, $requiredQty - $inv->quantity_on_hand),
+                    ];
+                }
+            }
+        }
+        if (!empty($shortages)) {
+            return response()->json([
+                'message' => 'Insufficient raw materials for this order',
+                'shortages' => $shortages
+            ], 422);
+        }
+
         return DB::transaction(function () use ($user, $cartItems, $totalPrice) {
             // Create order with checkout_date
             $order = Order::create([

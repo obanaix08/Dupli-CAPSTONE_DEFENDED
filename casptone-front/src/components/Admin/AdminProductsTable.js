@@ -75,6 +75,32 @@ const AdminProductsTable = () => {
     }
   };
 
+  const exportBom = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/products/${selectedProduct.id}/materials/export`, { headers, responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `product_${selectedProduct.id}_materials.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const importBom = async (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      await axios.post(`http://localhost:8000/api/products/${selectedProduct.id}/materials/import`, form, { headers });
+      await openBomModal(selectedProduct);
+    } catch (e) {
+      console.error(e);
+      alert('Import failed');
+    }
+  };
+
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setFormData(product);
@@ -332,7 +358,14 @@ const AdminProductsTable = () => {
                     ))}
                   </tbody>
                 </table>
-                <button className="btn btn-outline-secondary btn-sm" onClick={addBomRow}>+ Add Material</button>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-outline-secondary btn-sm" onClick={addBomRow}>+ Add Material</button>
+                  <button className="btn btn-outline-primary btn-sm" onClick={exportBom}>Export CSV</button>
+                  <label className="btn btn-outline-success btn-sm mb-0">
+                    Import CSV
+                    <input type="file" accept=".csv" hidden onChange={(e) => e.target.files?.[0] && importBom(e.target.files[0])} />
+                  </label>
+                </div>
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setShowBomModal(false)}>Close</button>

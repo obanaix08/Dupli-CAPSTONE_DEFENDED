@@ -73,4 +73,38 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'BOM saved']);
     }
+
+    public function exportMaterialsCsv($id)
+    {
+        $product = Product::findOrFail($id);
+        $rows = ProductMaterial::where('product_id', $product->id)->get(['inventory_item_id','qty_per_unit']);
+        $csv = "inventory_item_id,qty_per_unit\n";
+        foreach ($rows as $r) {
+            $csv .= $r->inventory_item_id . "," . $r->qty_per_unit . "\n";
+        }
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="product_'.$product->id.'_materials.csv"'
+        ]);
+    }
+
+    public function importMaterialsCsv(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $text = $request->file('file')->get();
+        $lines = preg_split("/\r?\n/", trim($text));
+        array_shift($lines); // header
+        ProductMaterial::where('product_id', $product->id)->delete();
+        foreach ($lines as $line) {
+            if (!strlen(trim($line))) continue;
+            [$invId, $qty] = array_map('trim', explode(',', $line));
+            ProductMaterial::create([
+                'product_id' => $product->id,
+                'inventory_item_id' => (int)$invId,
+                'qty_per_unit' => (int)$qty,
+            ]);
+        }
+        return response()->json(['message' => 'BOM imported']);
+    }
 }

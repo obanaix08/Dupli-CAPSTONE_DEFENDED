@@ -357,9 +357,13 @@ export default function ProductionTrackingSystem() {
                       
                       <div className="mt-2 small text-muted">
                         <strong>Resources:</strong> {
-                          typeof prod.resources_used === "object" ? 
-                          Object.entries(prod.resources_used || {}).map(([k,v]) => `${k}: ${v}`).join(", ") : 
-                          prod.resources_used || "N/A"
+                          Array.isArray(prod.resources_used)
+                            ? (prod.resources_used.length
+                                ? prod.resources_used.map((r) => `${r.inventory_item_id ?? r.sku ?? 'item'}: ${r.qty ?? r.quantity ?? 0}`).join(", ")
+                                : "N/A")
+                            : (typeof prod.resources_used === "object" && prod.resources_used
+                                ? Object.entries(prod.resources_used || {}).map(([k,v]) => `${k}: ${v}`).join(", ")
+                                : (prod.resources_used || "N/A"))
                         }
                       </div>
                       
