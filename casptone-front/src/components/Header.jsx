@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, Sun, Moon } from "lucide-react";
 import { LayoutDashboard, Package, ClipboardList, Boxes, Factory, BarChart } from "lucide-react";
 
 
@@ -47,7 +47,7 @@ const Header = ({ role, username }) => {
     };
 
     return (
-        <header style={role === "customer" ? styles.headerTransparent : styles.headerSolid}>
+        <header style={role === "customer" ? styles.headerTransparent : styles.headerWood}>
             <div style={styles.left} onClick={() => navigate("/dashboard")}>
                 <h2 style={styles.logo}>UNICK FURNITURE</h2>
             </div>
@@ -65,6 +65,10 @@ const Header = ({ role, username }) => {
                     </>
                 )}
                 <span style={styles.username}><User size={20} /> {username}</span>
+                <button className="icon-wood" role="switch" aria-checked={localStorage.getItem('theme')==='wood'} aria-label="Toggle theme" title="Toggle theme" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                    {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
+                    <span className="visually-hidden">Current theme: {localStorage.getItem('theme') || 'wood'}</span>
+                </button>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
             </div>
         </header>
@@ -110,6 +114,12 @@ const Sidebar = () => {
                         <BarChart size={20} /> Reports
                     </button>
                 </nav>
+                <div className="mt-3">
+                    <button className="icon-wood" role="switch" aria-checked={localStorage.getItem('theme')==='wood'} aria-label="Toggle theme" title="Toggle theme" onClick={() => window.setTheme && window.setTheme((localStorage.getItem('theme')==='wood')?'standard':'wood')}>
+                        {localStorage.getItem('theme')==='wood' ? <Sun size={16}/> : <Moon size={16}/>}
+                        <span className="visually-hidden">Current theme: {localStorage.getItem('theme') || 'wood'}</span>
+                    </button>
+                </div>
             </div>
 
             <button style={styles.logoutModern} onClick={handleLogout}>
@@ -141,6 +151,11 @@ const AppLayout = ({ children }) => {
             >
                 {children}
             </div>
+            <footer className="footer-wood text-center" style={{ marginLeft: role !== "customer" ? "250px" : 0 }}>
+                <div className="container">
+                    <small>© {new Date().getFullYear()} Unick Furniture — Crafted with care</small>
+                </div>
+            </footer>
         </>
     );
 };
@@ -161,11 +176,11 @@ const styles = {
         zIndex: 999,
         boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
     },
-    headerSolid: {
+    headerWood: {
         width: "100%",
         height: "60px",
-        backgroundColor: "#333",
-        color: "#fff",
+        background: "linear-gradient(180deg, #e8d9c6, #d9c7ae)",
+        color: "#2f2a26",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -174,6 +189,7 @@ const styles = {
         top: 0,
         left: 0,
         zIndex: 999,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
     },
     left: {
         display: "flex",
@@ -214,12 +230,22 @@ const styles = {
         padding: "2px 6px",
     },
     logoutBtn: {
-        backgroundColor: "#ff4d4f",
+        background: "linear-gradient(180deg, #b5835a, #8b5e34)",
         color: "#fff",
         border: "none",
-        borderRadius: "4px",
+        borderRadius: "8px",
         padding: "6px 12px",
         cursor: "pointer",
+        boxShadow: "0 8px 16px rgba(139,94,52,0.25)",
+    },
+    themeBtn: {
+        background: "linear-gradient(180deg, #d9c7ae, #cbb79a)",
+        color: "#2f2a26",
+        border: "none",
+        borderRadius: "8px",
+        padding: "6px 12px",
+        cursor: "pointer",
+        boxShadow: "0 6px 12px rgba(0,0,0,0.08)",
     },
 
     

@@ -45,28 +45,28 @@ const ProductPage = () => {
 
   return (
     <AppLayout>
-    <div className="container py-4">
+    <div className="container py-4 wood-animated" role="region" aria-labelledby="prod-heading">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         {/* Back Button */}
-        <button className="btn btn-outline-secondary mb-3" onClick={() => navigate("/dashboard")}>
+        <button className="btn btn-outline-secondary mb-3 btn-wood" onClick={() => navigate("/dashboard")}>
           ← Back to Dashboard
         </button>
 
         {/* Page Header */}
         <div className="text-center mb-4">
-          <h2 className="fw-bold">Unick Furniture Products</h2>
+          <h2 id="prod-heading" className="fw-bold">Unick Furniture Products</h2>
 
         </div>
 
         {/* Content */}
-        <div className="card shadow-lg border-0">
-  <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div className="card shadow-lg border-0 wood-card">
+  <div className="card-header d-flex justify-content-between align-items-center wood-header">
     <h5 className="mb-0 fw-bold">📦 Product List</h5>
-    <button className="btn btn-light btn-sm" onClick={() => setShowAddModal(true)}>
+    <button className="btn btn-light btn-sm btn-wood" onClick={() => setShowAddModal(true)}>
       + Add Product
     </button>
   </div>
-  <div className="card-body bg-light">
+  <div className="card-body">
     <AdminProductsTable key={refreshProducts} />
   </div>
 </div>
