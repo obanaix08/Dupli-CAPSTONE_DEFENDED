@@ -5,6 +5,11 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+if (process.env.NODE_ENV !== 'production') {
+  import('react-axe').then((axe) => {
+    try { (axe.default || axe)(React, ReactDOM, 1000); } catch {}
+  }).catch(() => {});
+}
 function ThemeWrapper(){
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'wood');
 
