@@ -31,4 +31,8 @@ npm install framer-motion
 
 npm install bootstrap
 
+npm install --save-dev react-axe
+
+npm install react-icons
+
 npm start
