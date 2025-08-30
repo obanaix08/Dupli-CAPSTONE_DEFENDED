@@ -11,6 +11,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\AdminOverviewController;
 
 
@@ -50,6 +51,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/inventory', [InventoryController::class, 'store']);
     Route::put('/inventory/{id}', [InventoryController::class, 'update']);
     Route::delete('/inventory/{id}', [InventoryController::class, 'destroy']);
+    Route::get('/inventory/reorder-items', [InventoryController::class, 'getReorderItems']);
+    Route::get('/inventory/daily-usage', [InventoryController::class, 'getDailyUsage']);
+    Route::get('/inventory/consumption-trends', [InventoryController::class, 'getConsumptionTrends']);
+    Route::get('/inventory/dashboard', [InventoryController::class, 'getDashboardData']);
 
     Route::get('/usage', [UsageController::class, 'index']);
     Route::post('/usage', [UsageController::class, 'store']);
@@ -64,10 +69,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::get('/productions', [ProductionController::class, 'index']);
     Route::get('/productions/analytics', [ProductionController::class, 'analytics']);
+    Route::get('/productions/predictive', [ProductionController::class, 'predictiveAnalytics']);
+    Route::get('/productions/daily-summary', [ProductionController::class, 'dailySummary']);
     Route::post('/productions', [ProductionController::class, 'store']);
-    Route::get('/productions/{id}', [ProductionController::class, 'show']);
+    Route::post('/productions/start', [ProductionController::class, 'startProduction']);
     Route::patch('/productions/{id}', [ProductionController::class, 'update']);
+    Route::patch('/productions/{productionId}/processes/{processId}', [ProductionController::class, 'updateProcess']);
+    Route::get('/productions/{id}', [ProductionController::class, 'show']);
     Route::delete('/productions/{id}', [ProductionController::class, 'destroy']);
+
+    // Order Tracking Routes
+    Route::get('/order-tracking/{orderId}', [OrderTrackingController::class, 'getTracking']);
+    Route::post('/order-tracking', [OrderTrackingController::class, 'createTracking']);
+    Route::patch('/order-tracking/{trackingId}', [OrderTrackingController::class, 'updateTracking']);
+    Route::get('/order-tracking/{orderId}/customer', [OrderTrackingController::class, 'getCustomerTracking']);
+    Route::get('/order-tracking/stats', [OrderTrackingController::class, 'getTrackingStats']);
 
     // Admin Overview
     Route::get('/admin/overview', [AdminOverviewController::class, 'index']);

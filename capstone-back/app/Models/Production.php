@@ -50,4 +50,16 @@ class Production extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    // Production has many processes
+    public function processes()
+    {
+        return $this->hasMany(ProductionProcess::class);
+    }
+
+    // Production can have analytics
+    public function analytics()
+    {
+        return $this->hasMany(ProductionAnalytics::class, 'product_id', 'product_id');
+    }
 }
