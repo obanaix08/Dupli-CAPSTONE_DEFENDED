@@ -14,15 +14,15 @@ class ProductionSeeder extends Seeder
      */
     public function run(): void
     {
-        // ✅ Ensure we have at least 1 user
-        if (User::count() === 0) {
-            User::factory()->create([
-                'name' => 'Default Admin',
-                'email' => 'admin@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'employee',
-            ]);
-        }
+        // // ✅ Ensure we have at least 1 user
+        // if (User::count() === 0) {
+        //     User::factory()->create([
+        //         'name' => 'Default Admin',
+        //         'email' => 'admin@example.com',
+        //         'password' => bcrypt('password'),
+        //         'role' => 'employee',
+        //     ]);
+       // }
 
         // ✅ Ensure we have at least 5 products
         if (Product::count() === 0) {
